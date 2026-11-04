@@ -18,39 +18,43 @@ CREATE TABLE usuarios (
 -- 2. Tabla Componentes (Datos físicos de hardware)
 CREATE TABLE componentes (
                              id BIGSERIAL PRIMARY KEY,
-                             numero_serie VARCHAR(100) UNIQUE NOT NULL,
+                             num_serie VARCHAR(100) UNIQUE NOT NULL,
                              modelo VARCHAR(100) NOT NULL,
-                             marca VARCHAR(100) NOT NULL,
-                             categoria VARCHAR(50) NOT NULL,
-                             fecha_fabricacion DATE NOT NULL
+                             fabricante VARCHAR(100) NOT NULL,
+                             tipo_componente VARCHAR(50) NOT NULL,
+                             estado VARCHAR(50) NOT NULL,
+                             usuario_id BIGINT REFERENCES usuarios(id) ON DELETE SET NULL,
+                             fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Tabla Garantías (Asociación componente-cliente)
+-- 3. Tabla Garantías
 CREATE TABLE garantias (
                            id BIGSERIAL PRIMARY KEY,
-                           componente_id BIGINT NOT NULL REFERENCES componentes(id) ON DELETE CASCADE,
-                           cliente_id BIGINT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-                           fecha_compra DATE NOT NULL,
-                           periodo_meses INT NOT NULL CHECK (periodo_meses > 0)
+                           componente_id BIGINT NOT NULL UNIQUE REFERENCES componentes(id) ON DELETE CASCADE,
+                           fecha_inicio DATE NOT NULL,
+                           fecha_fin DATE NOT NULL,
+                           tipo_garantia VARCHAR(50) NOT NULL,
+                           estado VARCHAR(50) NOT NULL
 );
 
 -- 4. Tabla Historial de Eventos (Pasaporte Digital / Trazabilidad)
 CREATE TABLE historial_eventos (
                                    id BIGSERIAL PRIMARY KEY,
                                    componente_id BIGINT NOT NULL REFERENCES componentes(id) ON DELETE CASCADE,
-                                   tipo_evento VARCHAR(30) NOT NULL CHECK (tipo_evento IN ('FABRICACION', 'VENTA', 'REPARACION', 'SUSTITUCION', 'INSPECCION')),
+                                   usuario_id BIGINT REFERENCES usuarios(id) ON DELETE SET NULL,
+                                   tipo_evento VARCHAR(50) NOT NULL,
                                    descripcion TEXT NOT NULL,
-                                   fecha_evento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                   registrado_por BIGINT NOT NULL REFERENCES usuarios(id)
+                                   fecha_evento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 5. Tabla Solicitudes RMA (Gestión de averías e integración SAP)
+-- 5. Tabla Solicitudes de RMA (Gestión de devoluciones y reparaciones B2B)
 CREATE TABLE solicitudes_rma (
                                  id BIGSERIAL PRIMARY KEY,
-                                 garantia_id BIGINT NOT NULL REFERENCES garantias(id) ON DELETE CASCADE,
-                                 tecnico_id BIGINT REFERENCES usuarios(id),
+                                 componente_id BIGINT NOT NULL REFERENCES componentes(id) ON DELETE CASCADE,
+                                 usuario_id BIGINT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+                                 codigo_rma VARCHAR(50) NOT NULL UNIQUE,
+                                 motivo TEXT NOT NULL,
+                                 estado VARCHAR(50) NOT NULL,
                                  fecha_solicitud TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                 motivo_averia TEXT NOT NULL,
-                                 estado_tramite VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE' CHECK (estado_tramite IN ('PENDIENTE', 'EN_REVISION', 'APROBADO', 'RECHAZADO', 'RESUELTO')),
-                                 codigo_seguimiento_sap VARCHAR(50)
+                                 fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
