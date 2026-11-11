@@ -21,7 +21,7 @@ public class Usuario {
     private String passwordHash;
 
     @Column(nullable = false, length = 20)
-    private String rol;
+    private String rol = "CLIENTE";
 
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;

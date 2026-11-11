@@ -22,4 +22,14 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(cuerpoRespuesta, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<Object> manejarViolacionIntegridad(org.springframework.dao.DataIntegrityViolationException ex) {
+        Map<String, Object> cuerpoRespuesta = new LinkedHashMap<>();
+        cuerpoRespuesta.put("timestamp", LocalDateTime.now());
+        cuerpoRespuesta.put("status", HttpStatus.BAD_REQUEST.value());
+        cuerpoRespuesta.put("error", "Error de Base de Datos");
+        cuerpoRespuesta.put("message", "Los datos enviados violan una restricción de la base de datos (email duplicado o rol no válido).");
+
+        return new ResponseEntity<>(cuerpoRespuesta, HttpStatus.BAD_REQUEST);
+    }
 }
