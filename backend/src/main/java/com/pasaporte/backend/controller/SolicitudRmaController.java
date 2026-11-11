@@ -30,11 +30,8 @@ public class SolicitudRmaController {
 
     @PostMapping
     public ResponseEntity<?> crearSolicitud(@RequestBody SolicitudRma solicitud) {
-        try {
             SolicitudRma nuevaSolicitud = solicitudRmaService.crearSolicitud(solicitud);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevaSolicitud);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
     }
 }

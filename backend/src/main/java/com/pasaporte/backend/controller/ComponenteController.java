@@ -31,13 +31,10 @@ public class ComponenteController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
     @PostMapping
-    public ResponseEntity<?> registrarComponente(@RequestBody Componente componente) {
-        try {
-            Componente nuevoComponente = componenteService.registrarComponente(componente);
-            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoComponente);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Componente> registrarComponente(@RequestBody Componente componente) {
+        Componente nuevoComponente = componenteService.registrarComponente(componente);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoComponente);
     }
 }

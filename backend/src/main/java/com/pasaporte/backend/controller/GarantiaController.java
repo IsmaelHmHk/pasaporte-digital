@@ -26,11 +26,8 @@ public class GarantiaController {
 
     @PostMapping
     public ResponseEntity<?> registrarGarantia(@RequestBody Garantia garantia) {
-        try {
             Garantia nuevaGarantia = garantiaService.registrarGarantia(garantia);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevaGarantia);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
     }
 }
