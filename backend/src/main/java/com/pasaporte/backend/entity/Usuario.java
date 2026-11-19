@@ -2,6 +2,7 @@ package com.pasaporte.backend.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "usuarios")
@@ -17,8 +18,10 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
+
 
     @Column(nullable = false, length = 20)
     private String rol = "CLIENTE";

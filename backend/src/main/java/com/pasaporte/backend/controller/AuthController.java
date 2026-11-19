@@ -4,12 +4,15 @@ import com.pasaporte.backend.dto.AuthResponse;
 import com.pasaporte.backend.dto.LoginRequest;
 import com.pasaporte.backend.dto.RegisterRequest;
 import com.pasaporte.backend.entity.Usuario;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import com.pasaporte.backend.repository.UsuarioRepository;
 import com.pasaporte.backend.security.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -55,5 +58,14 @@ public class AuthController {
 
         String token = jwtUtil.generarToken(usuario.getEmail());
         return ResponseEntity.ok(new AuthResponse(token));
+    }
+    @GetMapping("/me")
+    public ResponseEntity<Usuario> obtenerPerfilActual(Authentication authentication) {
+        String email = authentication.getName();
+
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        return ResponseEntity.ok(usuario);
     }
 }
