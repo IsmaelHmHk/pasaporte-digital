@@ -2,8 +2,11 @@ package com.pasaporte.backend.controller;
 
 import com.pasaporte.backend.entity.Componente;
 import com.pasaporte.backend.service.ComponenteService;
+import com.pasaporte.backend.service.QrService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,9 +17,11 @@ import java.util.List;
 public class ComponenteController {
 
     private final ComponenteService componenteService;
+    private final QrService qrService;
 
-    public ComponenteController(ComponenteService componenteService) {
+    public ComponenteController(ComponenteService componenteService, QrService qrService) {
         this.componenteService = componenteService;
+        this.qrService = qrService;
     }
 
     @GetMapping
@@ -31,7 +36,20 @@ public class ComponenteController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping(value = "/{numSerie}/qr", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> generarQrComponente(@PathVariable String numSerie) {
+        return componenteService.obtenerPorNumSerie(numSerie)
+                .map(componente -> {
+                    String urlPasaporte = "http://localhost:8080/api/pasaporte/" + componente.getNumSerie();
+                    byte[] imagenQr = qrService.generarCodigoQr(urlPasaporte, 300, 300);
+                    return ResponseEntity.ok()
+                            .contentType(MediaType.IMAGE_PNG)
+                            .body(imagenQr);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     @PostMapping
     public ResponseEntity<Componente> registrarComponente(@RequestBody Componente componente) {
         Componente nuevoComponente = componenteService.registrarComponente(componente);
