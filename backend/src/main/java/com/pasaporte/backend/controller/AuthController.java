@@ -1,18 +1,17 @@
 package com.pasaporte.backend.controller;
 
 import com.pasaporte.backend.dto.AuthResponse;
+import com.pasaporte.backend.dto.ChangePasswordRequest;
 import com.pasaporte.backend.dto.LoginRequest;
 import com.pasaporte.backend.dto.RegisterRequest;
 import com.pasaporte.backend.entity.Usuario;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
 import com.pasaporte.backend.repository.UsuarioRepository;
 import com.pasaporte.backend.security.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/api/auth")
@@ -39,7 +38,7 @@ public class AuthController {
                 request.getNombre(),
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
-                "CLIENTE" // <-- Cambiado a "CLIENTE" para cumplir la restricción CHECK de PostgreSQL
+                "CLIENTE"
         );
         usuarioRepository.save(usuario);
 
@@ -59,6 +58,7 @@ public class AuthController {
         String token = jwtUtil.generarToken(usuario.getEmail());
         return ResponseEntity.ok(new AuthResponse(token));
     }
+
     @GetMapping("/me")
     public ResponseEntity<Usuario> obtenerPerfilActual(Authentication authentication) {
         String email = authentication.getName();
@@ -67,5 +67,25 @@ public class AuthController {
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         return ResponseEntity.ok(usuario);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<String> cambiarPassword(@RequestBody ChangePasswordRequest request,
+                                                  Authentication authentication) {
+        if (request.getCurrentPassword() == null || request.getNewPassword() == null || request.getNewPassword().length() < 6) {
+            throw new IllegalArgumentException("La nueva contraseña debe tener al menos 6 caracteres");
+        }
+
+        Usuario usuario = usuarioRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), usuario.getPasswordHash())) {
+            throw new IllegalArgumentException("La contraseña actual no es correcta");
+        }
+
+        usuario.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        usuarioRepository.save(usuario);
+
+        return ResponseEntity.ok("Contraseña actualizada correctamente");
     }
 }

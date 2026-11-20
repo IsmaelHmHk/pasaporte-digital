@@ -39,6 +39,6 @@ public class SolicitudRmaController {
     @PatchMapping("/{id}/estado")
     public ResponseEntity<SolicitudRmaDTO> cambiarEstadoRma(@PathVariable Long id,
                                                             @RequestBody ActualizarEstadoRmaRequest request) {
-        return ResponseEntity.ok(rmaService.actualizarEstado(id, request.getEstado()));
+        return ResponseEntity.ok(rmaService.actualizarEstado(id, request.getEstado(), request.getRespuestaTecnico()));
     }
 }

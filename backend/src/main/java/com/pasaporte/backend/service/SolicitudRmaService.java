@@ -89,7 +89,7 @@ public class SolicitudRmaService {
     }
 
     @Transactional
-    public SolicitudRmaDTO actualizarEstado(Long idRma, String nuevoEstado) {
+    public SolicitudRmaDTO actualizarEstado(Long idRma, String nuevoEstado, String respuestaTecnico) {
         if (nuevoEstado == null || nuevoEstado.isBlank()) {
             throw new IllegalArgumentException("El nuevo estado es obligatorio");
         }
@@ -105,6 +105,10 @@ public class SolicitudRmaService {
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud RMA no encontrada"));
 
         rma.setEstado(estadoNormalizado);
+
+        if (respuestaTecnico != null && !respuestaTecnico.isBlank()) {
+            rma.setRespuestaTecnico(respuestaTecnico.trim());
+        }
 
         Componente componente = rma.getComponente();
         if ("REPARADO".equals(estadoNormalizado) || "RECHAZADO".equals(estadoNormalizado)) {

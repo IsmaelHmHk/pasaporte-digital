@@ -28,6 +28,9 @@ public class SolicitudRma {
     @Column(nullable = false, length = 50)
     private String estado;
 
+    @Column(name = "respuesta_tecnico", columnDefinition = "TEXT")
+    private String respuestaTecnico;
+
     @Column(name = "fecha_solicitud", updatable = false)
     private LocalDateTime fechaSolicitud;
 
@@ -72,6 +75,9 @@ public class SolicitudRma {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public String getRespuestaTecnico() { return respuestaTecnico; }
+    public void setRespuestaTecnico(String respuestaTecnico) { this.respuestaTecnico = respuestaTecnico; }
 
     public LocalDateTime getFechaSolicitud() { return fechaSolicitud; }
     public void setFechaSolicitud(LocalDateTime fechaSolicitud) { this.fechaSolicitud = fechaSolicitud; }

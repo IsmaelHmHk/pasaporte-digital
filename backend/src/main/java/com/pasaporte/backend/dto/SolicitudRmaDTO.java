@@ -11,6 +11,7 @@ public class SolicitudRmaDTO {
     private String emailUsuario;
     private String motivo;
     private String estado;
+    private String respuestaTecnico;
     private LocalDateTime fechaSolicitud;
     private LocalDateTime fechaActualizacion;
 
@@ -22,6 +23,7 @@ public class SolicitudRmaDTO {
         this.emailUsuario = rma.getUsuario().getEmail();
         this.motivo = rma.getMotivo();
         this.estado = rma.getEstado();
+        this.respuestaTecnico = rma.getRespuestaTecnico();
         this.fechaSolicitud = rma.getFechaSolicitud();
         this.fechaActualizacion = rma.getFechaActualizacion();
     }
@@ -33,6 +35,7 @@ public class SolicitudRmaDTO {
     public String getEmailUsuario() { return emailUsuario; }
     public String getMotivo() { return motivo; }
     public String getEstado() { return estado; }
+    public String getRespuestaTecnico() { return respuestaTecnico; }
     public LocalDateTime getFechaSolicitud() { return fechaSolicitud; }
     public LocalDateTime getFechaActualizacion() { return fechaActualizacion; }
 }
