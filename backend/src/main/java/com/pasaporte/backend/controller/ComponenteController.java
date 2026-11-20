@@ -2,7 +2,9 @@ package com.pasaporte.backend.controller;
 
 import com.pasaporte.backend.entity.Componente;
 import com.pasaporte.backend.service.ComponenteService;
+import com.pasaporte.backend.service.PdfService;
 import com.pasaporte.backend.service.QrService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +20,12 @@ public class ComponenteController {
 
     private final ComponenteService componenteService;
     private final QrService qrService;
+    private final PdfService pdfService;
 
-    public ComponenteController(ComponenteService componenteService, QrService qrService) {
+    public ComponenteController(ComponenteService componenteService, QrService qrService, PdfService pdfService) {
         this.componenteService = componenteService;
         this.qrService = qrService;
+        this.pdfService = pdfService;
     }
 
     @GetMapping
@@ -45,6 +49,21 @@ public class ComponenteController {
                     return ResponseEntity.ok()
                             .contentType(MediaType.IMAGE_PNG)
                             .body(imagenQr);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(value = "/{numSerie}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> generarPdfComponente(@PathVariable String numSerie) {
+        return componenteService.obtenerPorNumSerie(numSerie)
+                .map(componente -> {
+                    byte[] pdfBytes = pdfService.generarPasaportePdf(componente);
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_PDF);
+                    headers.setContentDispositionFormData("inline", "pasaporte-" + componente.getNumSerie() + ".pdf");
+                    return ResponseEntity.ok()
+                            .headers(headers)
+                            .body(pdfBytes);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
