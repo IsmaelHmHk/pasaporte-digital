@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface SolicitudRmaRepository extends JpaRepository<SolicitudRma, Long> {
+    List<SolicitudRma> findByUsuarioEmail(String email);
     Optional<SolicitudRma> findByCodigoRma(String codigoRma);
-    List<SolicitudRma> findByEstado(String estado);
-    List<SolicitudRma> findByUsuarioId(Long usuarioId);
 }
